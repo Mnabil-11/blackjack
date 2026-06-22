@@ -1,0 +1,23 @@
+.leaderboard {
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 320px;
+  color: #fff;
+}
+
+.leaderboard h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.leaderboard ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.leaderboard li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
