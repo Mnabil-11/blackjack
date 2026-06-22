@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Hand from './Hand';
-import Leaderboard from './Leaderboard';
-import { fetchScores, submitScore } from '../api';
+import Login from './Login';
+import { updateScore } from '../api';
 import './Game.css';
 
 const Game = () => {
@@ -14,20 +14,24 @@ const Game = () => {
   const [gameOver, setGameOver] = useState(false);
   const [dealerRevealed, setDealerRevealed] = useState(false);
   const [messageType, setMessageType] = useState('');
-  const [username, setUsername] = useState('');
-  const [wins, setWins] = useState(0);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [leaderboardError, setLeaderboardError] = useState('');
+  const [auth, setAuth] = useState(null);
+  const [lastScore, setLastScore] = useState(0);
+  const [scoreError, setScoreError] = useState('');
 
-  const loadLeaderboard = () => {
-    fetchScores()
-      .then(setLeaderboard)
-      .catch((err) => setLeaderboardError(err.message));
+  const handleLogin = (username, password, initialLastScore) => {
+    setAuth({ username, password });
+    setLastScore(initialLastScore);
+  };
+
+  const recordRoundResult = (finalPlayerScore) => {
+    if (!auth) return;
+    updateScore(auth.username, auth.password, finalPlayerScore)
+      .then((result) => setLastScore(result.lastScore))
+      .catch((err) => setScoreError(err.message));
   };
 
   useEffect(() => {
     startNewGame();
-    loadLeaderboard();
   }, []);
 
   useEffect(() => {
@@ -104,6 +108,7 @@ const Game = () => {
       setGameOver(true);
       setDealerRevealed(true);
       setMessageType('lose');
+      recordRoundResult(calculateScore(newPlayerHand));
     } else if (calculateScore(newPlayerHand) === 21) {
       playerStands();
     }
@@ -126,30 +131,21 @@ const Game = () => {
 
     const pScore = calculateScore(playerHand);
     setTimeout(() => {
-      let won = false;
       if (score > 21) {
         setMessage('🎉 Dealer busts! You win!');
         setMessageType('win');
-        won = true;
       } else if (score > pScore) {
         setMessage('😔 Dealer wins.');
         setMessageType('lose');
       } else if (score < pScore) {
         setMessage('🏆 You win!');
         setMessageType('win');
-        won = true;
       } else {
         setMessage('🤝 Push! It\'s a tie.');
         setMessageType('push');
       }
       setGameOver(true);
-      if (won && username) {
-        const newWins = wins + 1;
-        setWins(newWins);
-        submitScore(username, newWins, import.meta.env.VITE_API_PASSWORD)
-          .then(setLeaderboard)
-          .catch((err) => setLeaderboardError(err.message));
-      }
+      recordRoundResult(pScore);
     }, 600);
   };
 
@@ -158,24 +154,29 @@ const Game = () => {
     dealerTurn();
   };
 
+  if (!auth) {
+    return (
+      <div className="game-container">
+        <h1 className="game-title">BLACKJACK</h1>
+        <Login onLogin={handleLogin} />
+      </div>
+    );
+  }
+
   return (
     <div className="game-container">
       <div className="chip-decoration"></div>
       <div className="chip-decoration"></div>
       <div className="chip-decoration"></div>
       <div className="chip-decoration"></div>
-      
+
       <h1 className="game-title">BLACKJACK</h1>
 
       <div className="username-box">
-        <input
-          type="text"
-          placeholder="Enter your username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <span>Wins: {wins}</span>
+        <span>Welcome, {auth.username}</span>
+        <span>Last score: {lastScore}</span>
       </div>
+      {scoreError && <p className="leaderboard-error">{scoreError}</p>}
 
       <div className={`message-box ${messageType}`}>
         {message}
@@ -222,9 +223,6 @@ const Game = () => {
           New Game
         </button>
       </div>
-
-      {leaderboardError && <p className="leaderboard-error">{leaderboardError}</p>}
-      <Leaderboard scores={leaderboard} />
     </div>
   );
 };

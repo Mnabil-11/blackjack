@@ -2,5 +2,9 @@
   "name": "blackjack-backend",
   "private": true,
   "version": "0.0.0",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "pg": "^8.13.1"
+  }
 }

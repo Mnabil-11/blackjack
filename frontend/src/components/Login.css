@@ -1,0 +1,37 @@
+.login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 280px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.login-box h2 {
+  margin: 0 0 0.5rem;
+  text-align: center;
+}
+
+.login-box input {
+  padding: 0.5rem 0.6rem;
+  border-radius: 4px;
+  border: none;
+}
+
+.login-box button {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: none;
+  background: #2e7d32;
+  color: #fff;
+  cursor: pointer;
+}
+
+.login-error {
+  color: #ff8a80;
+  margin: 0;
+  text-align: center;
+}
