@@ -33,7 +33,8 @@ export default async function handler(req, res) {
     );
 
     res.status(201).json({ username, lastScore: 0 });
-  } catch {
-    res.status(500).json({ error: 'Database error' });
+  } catch (err) {
+    console.error('register error:', err);
+    res.status(500).json({ error: 'Database error', detail: err.message, code: err.code });
   }
 }

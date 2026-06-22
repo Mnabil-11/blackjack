@@ -34,7 +34,8 @@ export default async function handler(req, res) {
 
     await pool.query('UPDATE users SET last_score = $1 WHERE username = $2', [score, username]);
     res.status(200).json({ username, lastScore: score });
-  } catch {
-    res.status(500).json({ error: 'Database error' });
+  } catch (err) {
+    console.error('score error:', err);
+    res.status(500).json({ error: 'Database error', detail: err.message, code: err.code });
   }
 }

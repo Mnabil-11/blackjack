@@ -37,7 +37,8 @@ export default async function handler(req, res) {
     }
 
     res.status(200).json({ username, lastScore: last_score });
-  } catch {
-    res.status(500).json({ error: 'Database error' });
+  } catch (err) {
+    console.error('login error:', err);
+    res.status(500).json({ error: 'Database error', detail: err.message, code: err.code });
   }
 }
