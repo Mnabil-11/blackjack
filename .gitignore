@@ -1,0 +1,25 @@
+```
+# Dependencies
+node_modules/
+
+# Build artifacts
+frontend/dist/
+
+# Environment variables
+.env*
+!.env.example
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+```
