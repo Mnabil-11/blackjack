@@ -4,6 +4,8 @@ import Login from './Login';
 import { updateScore } from '../api';
 import './Game.css';
 
+const winConfettiPieces = Array.from({ length: 28 }, (_, index) => index);
+
 const Game = () => {
   const [deck, setDeck] = useState([]);
   const [playerHand, setPlayerHand] = useState([]);
@@ -17,7 +19,6 @@ const Game = () => {
   const [auth, setAuth] = useState(null);
   const [lastScore, setLastScore] = useState(0);
   const [scoreError, setScoreError] = useState('');
-  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleLogin = (username, password, initialLastScore) => {
     setAuth({ username, password });
@@ -75,7 +76,6 @@ const Game = () => {
     setGameOver(false);
     setDealerRevealed(false);
     setMessageType('');
-    setShowConfetti(false);
   };
 
   const getCardValue = (card) => {
@@ -136,14 +136,12 @@ const Game = () => {
       if (score > 21) {
         setMessage('🎉 Dealer busts! You win!');
         setMessageType('win');
-        setShowConfetti(true);
       } else if (score > pScore) {
         setMessage('😔 Dealer wins.');
         setMessageType('lose');
       } else if (score < pScore) {
         setMessage('🏆 You win!');
         setMessageType('win');
-        setShowConfetti(true);
       } else {
         setMessage('🤝 Push! It\'s a tie.');
         setMessageType('push');
@@ -168,15 +166,24 @@ const Game = () => {
   }
 
   return (
-    <div className={`game-container ${showConfetti ? 'win-animation' : ''}`}>
-      {showConfetti && (
-        <div className="confetti-container">
-          {[...Array(20)].map((_, i) => (
-            <div key={i} className="confetti"></div>
+    <div className={`game-container ${messageType === 'win' ? 'win-active' : ''}`}>
+      {messageType === 'win' && (
+        <div className="win-celebration" aria-hidden="true">
+          <div className="win-burst"></div>
+          {winConfettiPieces.map((piece) => (
+            <span
+              key={piece}
+              className="confetti-piece"
+              style={{
+                '--x': `${(piece * 37) % 100}%`,
+                '--delay': `${(piece % 9) * 0.08}s`,
+                '--spin': `${(piece % 2 === 0 ? 1 : -1) * (180 + piece * 19)}deg`,
+                '--fall': `${74 + (piece % 7) * 8}vh`
+              }}
+            />
           ))}
         </div>
       )}
-      
       <div className="chip-decoration"></div>
       <div className="chip-decoration"></div>
       <div className="chip-decoration"></div>
