@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Hand from './Hand';
-import Login from './Login';
-import { updateScore } from '../api';
+import { recordMatchResult } from '../api';
 import './Game.css';
 
 const winConfettiPieces = Array.from({ length: 28 }, (_, index) => index);
@@ -16,20 +15,11 @@ const Game = () => {
   const [gameOver, setGameOver] = useState(false);
   const [dealerRevealed, setDealerRevealed] = useState(false);
   const [messageType, setMessageType] = useState('');
-  const [auth, setAuth] = useState(null);
-  const [lastScore, setLastScore] = useState(0);
   const [scoreError, setScoreError] = useState('');
 
-  const handleLogin = (username, password, initialLastScore) => {
-    setAuth({ username, password });
-    setLastScore(initialLastScore);
-  };
-
-  const recordRoundResult = (finalPlayerScore) => {
-    if (!auth) return;
-    updateScore(auth.username, auth.password, finalPlayerScore)
-      .then((result) => setLastScore(result.lastScore))
-      .catch((err) => setScoreError(err.message));
+  const recordRoundResult = (outcome) => {
+    const isBlackjack = outcome === 'win' && playerHand.length === 2 && calculateScore(playerHand) === 21;
+    recordMatchResult(outcome, isBlackjack, playerHand.length).catch((err) => setScoreError(err.message));
   };
 
   useEffect(() => {
@@ -110,7 +100,7 @@ const Game = () => {
       setGameOver(true);
       setDealerRevealed(true);
       setMessageType('lose');
-      recordRoundResult(calculateScore(newPlayerHand));
+      recordRoundResult('loss');
     } else if (calculateScore(newPlayerHand) === 21) {
       playerStands();
     }
@@ -136,18 +126,21 @@ const Game = () => {
       if (score > 21) {
         setMessage('🎉 Dealer busts! You win!');
         setMessageType('win');
+        recordRoundResult('win');
       } else if (score > pScore) {
         setMessage('😔 Dealer wins.');
         setMessageType('lose');
+        recordRoundResult('loss');
       } else if (score < pScore) {
         setMessage('🏆 You win!');
         setMessageType('win');
+        recordRoundResult('win');
       } else {
         setMessage('🤝 Push! It\'s a tie.');
         setMessageType('push');
+        recordRoundResult('push');
       }
       setGameOver(true);
-      recordRoundResult(pScore);
     }, 600);
   };
 
@@ -156,17 +149,8 @@ const Game = () => {
     dealerTurn();
   };
 
-  if (!auth) {
-    return (
-      <div className="game-container">
-        <h1 className="game-title">BLACKJACK</h1>
-        <Login onLogin={handleLogin} />
-      </div>
-    );
-  }
-
   return (
-    <div className={`game-container ${messageType === 'win' ? 'win-active' : ''}`}>
+    <div className={`game-round ${messageType === 'win' ? 'win-active' : ''}`}>
       {messageType === 'win' && (
         <div className="win-celebration" aria-hidden="true">
           <div className="win-burst"></div>
@@ -184,17 +168,7 @@ const Game = () => {
           ))}
         </div>
       )}
-      <div className="chip-decoration"></div>
-      <div className="chip-decoration"></div>
-      <div className="chip-decoration"></div>
-      <div className="chip-decoration"></div>
 
-      <h1 className="game-title">BLACKJACK</h1>
-
-      <div className="username-box">
-        <span>Welcome, {auth.username}</span>
-        <span>Last score: {lastScore}</span>
-      </div>
       {scoreError && <p className="leaderboard-error">{scoreError}</p>}
 
       <div className={`message-box ${messageType}`}>

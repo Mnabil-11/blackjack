@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { login, register } from '../api';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
+  const { login, register } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,17 +14,15 @@ const Login = ({ onLogin }) => {
     setError('');
     setLoading(true);
     try {
-      let result;
       try {
-        result = await login(username, password);
+        await login(username, password);
       } catch (err) {
         if (err.message === 'User not found') {
-          result = await register(username, password);
+          await register(username, password);
         } else {
           throw err;
         }
       }
-      onLogin(username, password, result.lastScore);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -49,7 +48,7 @@ const Login = ({ onLogin }) => {
         required
       />
       <button type="submit" disabled={loading}>
-        {loading ? 'Loading...' : 'Login'}
+        {loading ? 'Loading...' : 'Login / Register'}
       </button>
       {error && <p className="login-error">{error}</p>}
     </form>

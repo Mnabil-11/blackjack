@@ -48,8 +48,29 @@ body {
   overflow: hidden;
 }
 
-.game-container.win-active {
+.game-container.win-active,
+.game-round.win-active {
   animation: tableWinGlow 1.6s ease-in-out;
+}
+
+.game-round {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lobby {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.lobby-controls {
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .game-container::before {

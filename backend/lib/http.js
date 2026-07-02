@@ -1,7 +1,7 @@
 export function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
 // Handles CORS preflight and the site-wide kill switch shared by every endpoint.
@@ -16,6 +16,11 @@ export function applyCommonChecks(req, res) {
 
   if (!process.env.PASSWORD) {
     res.status(500).json({ error: 'Server misconfigured: PASSWORD env var not set' });
+    return true;
+  }
+
+  if (!process.env.JWT_SECRET) {
+    res.status(500).json({ error: 'Server misconfigured: JWT_SECRET env var not set' });
     return true;
   }
 
