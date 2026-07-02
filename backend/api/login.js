@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { getPool, ensureSchema } from '../lib/db.js';
 import { applyCommonChecks } from '../lib/http.js';
 
@@ -30,8 +29,7 @@ export default async function handler(req, res) {
     }
 
     const { password_hash, last_score } = result.rows[0];
-    const valid = await bcrypt.compare(password, password_hash);
-    if (!valid) {
+    if (password !== password_hash) {
       res.status(401).json({ error: 'Invalid credentials' });
       return;
     }

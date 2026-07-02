@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { getPool, ensureSchema } from '../lib/db.js';
 import { applyCommonChecks } from '../lib/http.js';
 
@@ -26,10 +25,9 @@ export default async function handler(req, res) {
       return;
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
     await pool.query(
       'INSERT INTO users (username, password_hash) VALUES ($1, $2)',
-      [username, passwordHash]
+      [username, password]
     );
 
     res.status(201).json({ username, lastScore: 0 });
