@@ -6,6 +6,8 @@ import { recordMatchResult } from '../lib/stats.js';
 import { checkAchievements } from '../lib/achievements.js';
 import { applyRankedResult } from '../lib/ranked.js';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function dealInitialState() {
   const deck = shuffleDeck(createDeck());
   return {
@@ -92,7 +94,7 @@ async function incoming(req, res, auth) {
 
 async function respondInvite(req, res, auth) {
   const { matchId, accept } = req.body || {};
-  if (!matchId || typeof accept !== 'boolean') {
+  if (!matchId || typeof accept !== 'boolean' || !UUID_RE.test(matchId)) {
     res.status(400).json({ error: 'matchId and boolean accept are required' });
     return;
   }
@@ -127,7 +129,7 @@ async function respondInvite(req, res, auth) {
 
 async function state(req, res, auth) {
   const { matchId } = req.query;
-  if (!matchId) {
+  if (!matchId || !UUID_RE.test(matchId)) {
     res.status(400).json({ error: 'matchId is required' });
     return;
   }
@@ -198,7 +200,7 @@ async function finalizeIfDone(client, match, state) {
 
 async function move(req, res, auth) {
   const { matchId, move: action } = req.body || {};
-  if (!matchId || !['hit', 'stand'].includes(action)) {
+  if (!matchId || !UUID_RE.test(matchId) || !['hit', 'stand'].includes(action)) {
     res.status(400).json({ error: 'matchId and move (hit|stand) are required' });
     return;
   }
